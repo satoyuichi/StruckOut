@@ -7,13 +7,55 @@
     <body>
 	<canvas id="c" style="width:100%; height:100%;"></canvas>
 
-	<script type="text/javascript" src="./script/stage.js"></script>
-	<script type="text/javascript" src="./script/main.js"></script>
+	<script type="module" src="./script/stage.js"></script>
 	<script type="module">
+	 import {Environment} from './script/environment.js';
+	 import {Stage} from './script/stage.js';
 	 import * as THREE from 'https://cdn.skypack.dev/pin/three@v0.135.0-pjGUcRG9Xt70OdXl97VF/mode=imports/optimized/three.js';
 	 import * as CANNON from 'https://cdn.skypack.dev/cannon-es';
+	 
+	 function main() {
 
-	 main(THREE, CANNON);
+	     const ev = new Environment(THREE, CANNON);
+	     const stage = new Stage();
+	     stage.setup (ev);
+
+	     if (typeof __THREE_DEVTOOLS__ !== 'undefined') {
+		 __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('observe', { detail: ev.scene }));
+		 __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('observe', { detail: ev.renderer }));
+	     }
+
+	     function render(time) {
+		 time *= 0.001;  // convert time to seconds
+		 
+		 if (resizeRendererToDisplaySize(ev.renderer)) {
+		     const canvas = ev.renderer.domElement;
+		     ev.camera.aspect = canvas.clientWidth / canvas.clientHeight;
+		     ev.camera.updateProjectionMatrix();
+		 }
+
+		 stage.step();
+		 ev.renderer.render(ev.scene, ev.camera);
+		 
+		 requestAnimationFrame(render);
+	     }
+
+	     function resizeRendererToDisplaySize(renderer) {
+		 const canvas = renderer.domElement;
+		 const pixelRatio = window.devicePixelRatio;
+		 const width  = canvas.clientWidth  * pixelRatio | 0;
+		 const height = canvas.clientHeight * pixelRatio | 0;
+		 const needResize = canvas.width !== width || canvas.height !== height;
+		 if (needResize) {
+		     renderer.setSize(width, height, false);
+		 }
+		 return needResize;
+	     }
+
+	     requestAnimationFrame(render);
+	 }
+
+	 main();
 	</script>
     </body>
 </html>
