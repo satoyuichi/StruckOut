@@ -1,9 +1,9 @@
 class Plate {
   static _length = 0.6;
   
-  constructor (ev) {
+  constructor (ev, material) {
     this._geometry = new ev.three.BoxGeometry (Plate._length, Plate._length, 0.02);
-    this._material = new ev.three.MeshBasicMaterial ({color: 0xdddddd});
+    this._material = material;
     this._mesh = new ev.three.Mesh (this._geometry, this._material);
     ev.scene.add (this._mesh);
 
@@ -65,8 +65,16 @@ export class Stage {
       {x: 1.5 * w, y: 1.5 * h, z: 0.0},
     ];
 
+    const material = new this._environment.three.MeshPhongMaterial({
+      color: 0xffffff,
+      side: this._environment.three.DoubleSide,
+      map: this.createTexture('../texture/Alloy_diamond_plate_pxr128.png', 1.0),
+      bumpMap: this.createTexture('../texture/Alloy_diamond_plate_pxr128_bmp.png', 1.0),
+      normalMap: this.createTexture('../texture/Alloy_diamond_plate_pxr128_normal.png', 1.0),
+    });
+    
     for (var i = 0; i < 9; i++) {
-      let plate = new Plate (this._environment);
+      let plate = new Plate (this._environment, material);
       let p = platePositions[i];
       let v = new this._environment.three.Vector3(p.x, p.y + 1.5, p.z);
       plate.position = v;
@@ -80,9 +88,9 @@ export class Stage {
     const material = new ev.three.MeshPhongMaterial({
       color: 0xffffff,
       side: ev.three.DoubleSide,
-      map: this.createTexture('../texture/Redwood_outdoor_pxr128.png'),
-      bumpMap: this.createTexture('../texture/Redwood_outdoor_pxr128_bmp.png'),
-      normalMap: this.createTexture('../texture/Redwood_outdoor_pxr128_normal.png'),
+      map: this.createTexture('../texture/Redwood_outdoor_pxr128.png', 10.0),
+      bumpMap: this.createTexture('../texture/Redwood_outdoor_pxr128_bmp.png', 10.0),
+      normalMap: this.createTexture('../texture/Redwood_outdoor_pxr128_normal.png', 10.0),
     });
     const plane = new ev.three.Mesh( geometry, material );
     plane.rotation.x = 90;
@@ -96,12 +104,12 @@ export class Stage {
     ev.world.addBody(groundBody)
   }
 
-  createTexture (name) {
+  createTexture (name, repeat) {
     const ev = this._environment;
     const texture = ev.loader.load(name);
     texture.wrapS = ev.three.RepeatWrapping;
     texture.wrapT = ev.three.RepeatWrapping;
-    texture.repeat.set(10, 10);
+    texture.repeat.set(repeat, repeat);
 
     return texture;
   }
