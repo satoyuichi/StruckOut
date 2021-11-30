@@ -1,63 +1,68 @@
 <!DOCTYPE html>
 <html>
     <head>
-	<meta charset="UTF-8">
-	<title>Struc Out</title>
+	    <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	    <title>Struc Out</title>
     </head>
     <body>
-	<canvas id="c" style="width:100%; height:100%;"></canvas>
+	    <canvas id="c" style="width:100%; height:100%;"></canvas>
 
-	<script type="module">
-	 import {Environment} from './script/environment.js';
-	 import {Stage} from './script/stage.js';
-	 import {Ball} from './script/ball.js';
-	 import * as THREE from 'https://cdn.skypack.dev/pin/three@v0.135.0-pjGUcRG9Xt70OdXl97VF/mode=imports/optimized/three.js';
-	 import * as CANNON from 'https://cdn.skypack.dev/cannon-es';
-	 
-	 function main() {
+	    <script type="module">
+	     import {Environment} from './script/environment.js';
+	     import {Stage} from './script/stage.js';
+	     import {Ball} from './script/ball.js';
+	     import * as THREE from 'https://cdn.skypack.dev/pin/three@v0.135.0-pjGUcRG9Xt70OdXl97VF/mode=imports/optimized/three.js';
+	     import * as CANNON from 'https://cdn.skypack.dev/cannon-es';
+	     
+	     function main() {
 
-	     const ev = new Environment(THREE, CANNON);
-	     const stage = new Stage(ev);
-         const ball = new Ball(ev);
-         
-	     stage.setup ();
+	         const ev = new Environment(THREE, CANNON);
+	         const stage = new Stage(ev);
+             const ball = new Ball(ev);
+             ball.position = new THREE.Vector3(0.0, 1.5, Environment._distance);
+             
+	         stage.setup ();
+             stage.addChild (ball);
 
-	     if (typeof __THREE_DEVTOOLS__ !== 'undefined') {
-		 __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('observe', { detail: ev.scene }));
-		 __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('observe', { detail: ev.renderer }));
+	         if (typeof __THREE_DEVTOOLS__ !== 'undefined') {
+		         __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('observe', { detail: ev.scene }));
+		         __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('observe', { detail: ev.renderer }));
+	         }
+
+	         function render(time) {
+		         time *= 0.001;  // convert time to seconds
+		         
+		         if (resizeRendererToDisplaySize(ev.renderer)) {
+		             const canvas = ev.renderer.domElement;
+		             ev.camera.aspect = canvas.clientWidth / canvas.clientHeight;
+		             ev.camera.updateProjectionMatrix();
+		         }
+
+                 ev.world.step(1.0);
+		         stage.step();
+                 
+		         ev.renderer.render(ev.scene, ev.camera);
+		         
+		         requestAnimationFrame(render);
+	         }
+
+	         function resizeRendererToDisplaySize(renderer) {
+		         const canvas = renderer.domElement;
+		         const pixelRatio = window.devicePixelRatio;
+		         const width  = canvas.clientWidth  * pixelRatio | 0;
+		         const height = canvas.clientHeight * pixelRatio | 0;
+		         const needResize = canvas.width !== width || canvas.height !== height;
+		         if (needResize) {
+		             renderer.setSize(width, height, false);
+		         }
+		         return needResize;
+	         }
+
+	         requestAnimationFrame(render);
 	     }
 
-	     function render(time) {
-		 time *= 0.001;  // convert time to seconds
-		 
-		 if (resizeRendererToDisplaySize(ev.renderer)) {
-		     const canvas = ev.renderer.domElement;
-		     ev.camera.aspect = canvas.clientWidth / canvas.clientHeight;
-		     ev.camera.updateProjectionMatrix();
-		 }
-
-		 stage.step();
-		 ev.renderer.render(ev.scene, ev.camera);
-		 
-		 requestAnimationFrame(render);
-	     }
-
-	     function resizeRendererToDisplaySize(renderer) {
-		 const canvas = renderer.domElement;
-		 const pixelRatio = window.devicePixelRatio;
-		 const width  = canvas.clientWidth  * pixelRatio | 0;
-		 const height = canvas.clientHeight * pixelRatio | 0;
-		 const needResize = canvas.width !== width || canvas.height !== height;
-		 if (needResize) {
-		     renderer.setSize(width, height, false);
-		 }
-		 return needResize;
-	     }
-
-	     requestAnimationFrame(render);
-	 }
-
-	 main();
-	</script>
+	     main();
+	    </script>
     </body>
 </html>
