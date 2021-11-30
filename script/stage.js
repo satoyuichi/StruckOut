@@ -37,6 +37,17 @@ export class Stage {
   }
 
   setup () {
+    this._environment.scene.add(new this._environment.three.AmbientLight(0xffffff, 1.0));
+    
+    this.createPlates ();
+    this.createFloor ();
+  }
+
+  addChild (child) {
+    this._children.push(child);
+  }
+
+  createPlates () {
     const w = Plate._length;
     const h = Plate._length;
     const s = 0.05;
@@ -61,18 +72,18 @@ export class Stage {
       plate.position = v;
       this.addChild(plate);
     }
-
-    this.createFloor ();
   }
-
-  addChild (child) {
-    this._children.push(child);
-  }
-
+  
   createFloor () {
     const ev = this._environment;
     const geometry = new ev.three.PlaneGeometry( 100, 100 );
-    const material = new ev.three.MeshBasicMaterial( {color: 0xffffff, side: ev.three.DoubleSide} );
+    const material = new ev.three.MeshPhongMaterial({
+      color: 0xffffff,
+      side: ev.three.DoubleSide,
+      map: this.createTexture('../texture/Redwood_outdoor_pxr128.png'),
+      bumpMap: this.createTexture('../texture/Redwood_outdoor_pxr128_bmp.png'),
+      normalMap: this.createTexture('../texture/Redwood_outdoor_pxr128_normal.png'),
+    });
     const plane = new ev.three.Mesh( geometry, material );
     plane.rotation.x = 90;
     ev.scene.add( plane );
@@ -83,6 +94,16 @@ export class Stage {
     })
     groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0) // make it face up
     ev.world.addBody(groundBody)
+  }
+
+  createTexture (name) {
+    const ev = this._environment;
+    const texture = ev.loader.load(name);
+    texture.wrapS = ev.three.RepeatWrapping;
+    texture.wrapT = ev.three.RepeatWrapping;
+    texture.repeat.set(10, 10);
+
+    return texture;
   }
   
   step (frame) {

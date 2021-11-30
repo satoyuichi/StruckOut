@@ -24,6 +24,8 @@ export class Ball {
     });
     this._body.sleepState = this._environment.cannon.Body.SLEEPING
     this._environment.world.addBody(this._body);
+
+    this._environment.scene.add(new this._environment.three.PointLight(0xffffff, 1.0));
   }
 
   step (frame) {
