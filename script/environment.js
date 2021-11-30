@@ -1,4 +1,6 @@
 export class Environment {
+  static _distance = 18.44 * 0.5; // ピッチャーとキャッチャーの距離
+  
   constructor (THREE, CANNON) {
     this._three = THREE;
     this._cannon = CANNON;
@@ -13,10 +15,11 @@ export class Environment {
     const fov = 75;
     const aspect = 2;  // the canvas default
     const near = 0.1;
-    const far = 5;
+    const far = 50;
 
     this._camera = new this._three.PerspectiveCamera(fov, aspect, near, far);
-    this._camera.position.z = 2;
+    this._camera.position.y = 1.6;
+    this._camera.position.z = Environment._distance + 1.0;
 
     this._scene = new this._three.Scene();
   }

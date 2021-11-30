@@ -7,18 +7,20 @@
     <body>
 	<canvas id="c" style="width:100%; height:100%;"></canvas>
 
-	<script type="module" src="./script/stage.js"></script>
 	<script type="module">
 	 import {Environment} from './script/environment.js';
 	 import {Stage} from './script/stage.js';
+	 import {Ball} from './script/ball.js';
 	 import * as THREE from 'https://cdn.skypack.dev/pin/three@v0.135.0-pjGUcRG9Xt70OdXl97VF/mode=imports/optimized/three.js';
 	 import * as CANNON from 'https://cdn.skypack.dev/cannon-es';
 	 
 	 function main() {
 
 	     const ev = new Environment(THREE, CANNON);
-	     const stage = new Stage();
-	     stage.setup (ev);
+	     const stage = new Stage(ev);
+         const ball = new Ball(ev);
+         
+	     stage.setup ();
 
 	     if (typeof __THREE_DEVTOOLS__ !== 'undefined') {
 		 __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('observe', { detail: ev.scene }));
