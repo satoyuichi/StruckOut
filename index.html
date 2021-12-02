@@ -1,79 +1,117 @@
 <!DOCTYPE html>
 <html>
     <head>
-	    <meta charset="UTF-8">
+	<meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
         <link rel="stylesheet" href="./main.css">
-	    <title>Struc Out</title>
+	<title>Struc Out</title>
     </head>
     <body>
-	    <canvas id="c" style="width:100%; height:100%;"></canvas>
+	<canvas id="c" style="width:100%; height:100%;"></canvas>
         <div id="interface">
-		    <div id="button" onmouseup="onButtonClick ()">
-		        <span>Shoot!</span>
-		    </div>
-		    <div id="power">
-		        <canvas id="canvas_power" width="233px" height="34px"></canvas>
-		    </div>
-		    <div id="score">
-		        1 / 10  Score: 0
-		    </div>
+	    <div id="button" onmouseup="onButtonClick ()">
+		<span>Shoot!</span>
+	    </div>
+	    <div id="power">
+		<canvas id="canvas_power" width="233px" height="34px"></canvas>
+	    </div>
+	    <div id="score">
+		1 / 10  Score: 0
+	    </div>
         </div>
-	    <script type="module">
-	     import {Environment} from './script/environment.js';
-	     import {Stage} from './script/stage.js';
-	     import {Ball} from './script/ball.js';
-	     import * as THREE from 'https://cdn.skypack.dev/three';
-	     import * as CANNON from 'https://cdn.skypack.dev/cannon-es';
+	<script>
+	 const POWER_OFFSET = 21;
+	 const POWER_MIN = 0;
+	 const POWER_MAX = 233;
+
+	 let powerContext = document.getElementById ("canvas_power").getContext ('2d');
+	 let power = 0.0;
+	 let addPowerVal = 1.5;
+	 function setPower () {
+	     powerContext.fillStyle = 'white';
+	     powerContext.fillRect (0, 0, POWER_MAX, 34);
+
+	     powerContext.fillStyle = 'orange';
+	     powerContext.fillRect (0, 0, power, 34);
+
+	     power = power + addPowerVal;
+	     if ((power >= POWER_MAX) || (power < POWER_MIN)) {
+		 addPowerVal = -addPowerVal;
+	     }
+	 }
+
+	 function onButtonClick () {
+	     let v = new ev.cannon.Vec3 (0.0, 0.0, -1.0);
+	     ball.setPower (v);
+	 }
+	</script>
+
+	<script type="module">
+	 import {Environment} from './script/environment.js';
+	 import {Stage} from './script/stage.js';
+	 import {Ball} from './script/ball.js';
+	 import * as THREE from 'https://cdn.skypack.dev/three';
+	 import * as CANNON from 'https://cdn.skypack.dev/cannon-es';
+	 import Stats from 'https://cdn.skypack.dev/stats.js';
+
+	 const stats = new Stats();
+	 stats.showPanel(0);
+	 document.body.appendChild( stats.dom );
+	 
+	 const ev = new Environment(THREE, CANNON);
+	 const stage = new Stage(ev);
+	 const ball = new Ball(ev);
+	 ball.position = new THREE.Vector3(0.0, 1.5, Environment._distance);
+	 
+	 stage.setup ();
+	 stage.addChild (ball);
+
+	 if (typeof __THREE_DEVTOOLS__ !== 'undefined') {
+	     __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('observe', { detail: ev.scene }));
+	     __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('observe', { detail: ev.renderer }));
+	 }
+
+	 window.onload = function () {
+	     let v = new ev.cannon.Vec3 (0.001, 0.035, -0.039);
+	     ball.setPower (v);
 	     
-	     function main() {
+	     function render(time) {
+		 stats.begin();
 
-	         const ev = new Environment(THREE, CANNON);
-	         const stage = new Stage(ev);
-             const ball = new Ball(ev);
-             ball.position = new THREE.Vector3(0.0, 1.5, Environment._distance);
-             
-	         stage.setup ();
-             stage.addChild (ball);
-
-	         if (typeof __THREE_DEVTOOLS__ !== 'undefined') {
-		         __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('observe', { detail: ev.scene }));
-		         __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('observe', { detail: ev.renderer }));
-	         }
-
-	         function render(time) {
-		         time *= 0.001;  // convert time to seconds
-		         
-		         if (resizeRendererToDisplaySize(ev.renderer)) {
-		             const canvas = ev.renderer.domElement;
-		             ev.camera.aspect = canvas.clientWidth / canvas.clientHeight;
-		             ev.camera.updateProjectionMatrix();
-		         }
+		 setPower ();
+		 
+		 time *= 0.001;  // convert time to seconds
+		 
+		 if (resizeRendererToDisplaySize(ev.renderer)) {
+		     const canvas = ev.renderer.domElement;
+		     ev.camera.aspect = canvas.clientWidth / canvas.clientHeight;
+		     ev.camera.updateProjectionMatrix();
+		 }
 
                  ev.world.step(1.0);
-		         stage.step();
+		 stage.step();
 
-		         ev.renderer.render(ev.scene, ev.camera);
-		         
-		         requestAnimationFrame(render);
-	         }
+		 ev.renderer.render(ev.scene, ev.camera);
 
-	         function resizeRendererToDisplaySize(renderer) {
-		         const canvas = renderer.domElement;
-		         const pixelRatio = window.devicePixelRatio;
-		         const width  = canvas.clientWidth  * pixelRatio | 0;
-		         const height = canvas.clientHeight * pixelRatio | 0;
-		         const needResize = canvas.width !== width || canvas.height !== height;
-		         if (needResize) {
-		             renderer.setSize(width, height, false);
-		         }
-		         return needResize;
-	         }
+		 stats.end();
 
-	         requestAnimationFrame(render);
+		 requestAnimationFrame(render);
 	     }
 
-	     main();
-	    </script>
+	     function resizeRendererToDisplaySize(renderer) {
+		 const canvas = renderer.domElement;
+		 const pixelRatio = window.devicePixelRatio;
+		 const width  = canvas.clientWidth  * pixelRatio | 0;
+		 const height = canvas.clientHeight * pixelRatio | 0;
+		 const needResize = canvas.width !== width || canvas.height !== height;
+		 if (needResize) {
+		     renderer.setSize(width, height, false);
+		 }
+		 return needResize;
+	     }
+
+	     requestAnimationFrame(render);
+	 }
+	</script>
     </body>
 </html>

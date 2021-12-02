@@ -20,7 +20,8 @@ export class Environment {
 
     this._camera = new this._three.PerspectiveCamera(fov, aspect, near, far);
     this._camera.position.y = 1.6;
-    this._camera.position.z = Environment._distance + 1.0;
+//    this._camera.position.z = Environment._distance + 1.0;
+    this._camera.position.z = 2;
 
     this._scene = new this._three.Scene();
 

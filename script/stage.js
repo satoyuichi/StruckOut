@@ -7,9 +7,9 @@ class Plate {
     this._mesh = new ev.three.Mesh (this._geometry, this._material);
     ev.scene.add (this._mesh);
 
-    const halfExtents = new ev.cannon.Vec3 (Plate._length, Plate._length, 0.01);
+    const halfExtents = new ev.cannon.Vec3 (Plate._length * 0.5, Plate._length * 0.5, 0.01);
     this._body = new ev.cannon.Body ({
-      mass: 0.4,
+      mass: 1,
       shape: new ev.cannon.Box (halfExtents),
     });
     this._body.sleepState = ev.cannon.Body.SLEEPING
@@ -38,13 +38,51 @@ export class Stage {
 
   setup () {
     this._environment.scene.add(new this._environment.three.AmbientLight(0xffffff, 1.0));
-    
+
+    this.createFrame ();
     this.createPlates ();
     this.createFloor ();
   }
 
   addChild (child) {
     this._children.push(child);
+  }
+
+  createFrame () {
+    const length = Plate._length * 5.0;
+    let geometry = new this._environment.three.BoxGeometry (length, Plate._length * 0.5, 0.04);
+    const material = new this._environment.three.MeshPhongMaterial({
+      color: 0xffffff,
+    });
+
+    frame (this._environment, 0.0, Plate._length * 0.5 * 4.5 + 1.5);
+    frame (this._environment, 0.0, Plate._length * 0.5 * 1.5 + 1.5);
+    frame (this._environment, 0.0, -Plate._length * 0.5 * 1.5 + 1.5);
+    frame (this._environment, 0.0, -Plate._length * 0.5 * 4.5 + 1.5);
+
+    geometry = new this._environment.three.BoxGeometry (Plate._length * 0.5, length, 0.04);
+
+    frame (this._environment, Plate._length * 0.5 * 4.5, 1.5);
+    frame (this._environment, Plate._length * 0.5 * 1.5, 1.5);
+    frame (this._environment, -Plate._length * 0.5 * 1.5, 1.5);
+    frame (this._environment, -Plate._length * 0.5 * 4.5, 1.5);
+    
+    function frame (ev, x, y) {
+      const mesh = new ev.three.Mesh (geometry, material);
+      ev.scene.add (mesh);
+
+      const halfExtents = new ev.cannon.Vec3 (length * 0.5, 1.5, 0.04);
+      const body = new ev.cannon.Body ({
+        type: ev.cannon.Body.STATIC,
+        shape: new ev.cannon.Box (halfExtents),
+      });
+      body.position.x = x;
+      body.position.y = y;
+      ev.world.addBody (body);
+
+      mesh.position.copy(body.position)
+      mesh.quaternion.copy(body.quaternion)
+    }
   }
 
   createPlates () {
@@ -93,7 +131,7 @@ export class Stage {
       normalMap: this.createTexture('../texture/Redwood_outdoor_pxr128_normal.png', 10.0),
     });
     const plane = new ev.three.Mesh( geometry, material );
-    plane.rotation.x = 90;
+    plane.rotation.x = ev.three.MathUtils.degToRad( 90 );
     ev.scene.add( plane );
 
     const groundBody = new ev.cannon.Body({

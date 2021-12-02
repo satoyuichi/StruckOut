@@ -17,7 +17,7 @@ export class Ball {
 
     this._environment.scene.add( this._mesh );
 
-    const sphereShape = new this._environment.cannon.Sphere(this._radius);
+    const sphereShape = new this._environment.cannon.Sphere(Ball._radius);
     this._body = new this._environment.cannon.Body({
       mass: Ball._weight,
       shape: sphereShape
@@ -39,5 +39,9 @@ export class Ball {
     this._mesh.position.z = v.z;
 
     this._body.position.set(v.x, v.y, v.z);
+  }
+
+  setPower (v) {
+    this._body.applyImpulse (v);
   }
 }
