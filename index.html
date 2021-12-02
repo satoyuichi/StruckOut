@@ -41,7 +41,10 @@
 	 }
 
 	 function onButtonClick () {
-	     let v = new ev.cannon.Vec3 (0.0, 0.0, -1.0);
+	     let v = ev.controls.target.clone ();
+	     v.sub(ev.camera.position);
+	     v.multiplyScalar (power);
+	     ball.reset ();
 	     ball.setPower (v);
 	 }
 	</script>
@@ -58,9 +61,9 @@
 	 stats.showPanel(0);
 	 document.body.appendChild( stats.dom );
 	 
-	 const ev = new Environment(THREE, CANNON);
+	 window.ev = new Environment(THREE, CANNON);
 	 const stage = new Stage(ev);
-	 const ball = new Ball(ev);
+	 window.ball = new Ball(ev);
 	 ball.position = new THREE.Vector3(0.0, 1.5, Environment._distance);
 	 
 	 stage.setup ();
@@ -72,9 +75,6 @@
 	 }
 
 	 window.onload = function () {
-	     let v = new ev.cannon.Vec3 (0.001, 0.035, -0.039);
-	     ball.setPower (v);
-	     
 	     function render(time) {
 		 stats.begin();
 
@@ -88,10 +88,10 @@
 		     ev.camera.updateProjectionMatrix();
 		 }
 
-                 ev.world.step(1.0);
+                 ev.world.step(1.0 / 60.0);
 		 stage.step();
 
-		 ev.renderer.render(ev.scene, ev.camera);
+		 ev.update ();
 
 		 stats.end();
 

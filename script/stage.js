@@ -37,7 +37,7 @@ export class Stage {
   }
 
   setup () {
-    this._environment.scene.add(new this._environment.three.AmbientLight(0xffffff, 1.0));
+    this._environment.scene.add(new this._environment.three.AmbientLight(0xffffff, 0.8));
 
     this.createFrame ();
     this.createPlates ();
@@ -71,13 +71,14 @@ export class Stage {
       const mesh = new ev.three.Mesh (geometry, material);
       ev.scene.add (mesh);
 
-      const halfExtents = new ev.cannon.Vec3 (length * 0.5, 1.5, 0.04);
+      geometry.computeBoundingBox ();
+      const bb = geometry.boundingBox;
+      const halfExtents = new ev.cannon.Vec3 ((bb.max.x - bb.min.x) * 0.5, (bb.max.y - bb.min.y) * 0.5, (bb.max.z - bb.min.z) * 0.5);
       const body = new ev.cannon.Body ({
         type: ev.cannon.Body.STATIC,
         shape: new ev.cannon.Box (halfExtents),
       });
-      body.position.x = x;
-      body.position.y = y;
+      body.position.set(x, y, 0.0);
       ev.world.addBody (body);
 
       mesh.position.copy(body.position)

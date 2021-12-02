@@ -17,15 +17,14 @@ export class Ball {
 
     this._environment.scene.add( this._mesh );
 
-    const sphereShape = new this._environment.cannon.Sphere(Ball._radius);
     this._body = new this._environment.cannon.Body({
       mass: Ball._weight,
-      shape: sphereShape
+      shape: new this._environment.cannon.Sphere(Ball._radius)
     });
     this._body.sleepState = this._environment.cannon.Body.SLEEPING
     this._environment.world.addBody(this._body);
 
-    this._environment.scene.add(new this._environment.three.PointLight(0xffffff, 1.0));
+    this._mesh.add(new this._environment.three.PointLight(0xffff00, 0.8, 2.0));
   }
 
   step (frame) {
@@ -38,10 +37,15 @@ export class Ball {
     this._mesh.position.y = v.y;
     this._mesh.position.z = v.z;
 
+    this._body.sleep();
     this._body.position.set(v.x, v.y, v.z);
   }
 
   setPower (v) {
-    this._body.applyImpulse (v);
+    this._body.applyForce (v);
+  }
+
+  reset () {
+    this.position = new this._environment.three.Vector3(0.0, 1.5, Environment._distance);
   }
 }
