@@ -2,7 +2,7 @@ import {Environment} from './environment.js';
 
 export class Ball {
   static _radius = 0.072;
-  static _weight = 0.148;
+  static _weight = 0.148 * 2.0;
   
   constructor (ev) {
     this._environment = ev;
@@ -24,7 +24,7 @@ export class Ball {
     this._body.sleepState = this._environment.cannon.Body.SLEEPING
     this._environment.world.addBody(this._body);
 
-    this._mesh.add(new this._environment.three.PointLight(0xffff00, 0.8, 2.0));
+    this._mesh.add(new this._environment.three.PointLight(0xaaaa00, 0.8, 2.0));
   }
 
   step (frame) {

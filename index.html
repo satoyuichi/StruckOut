@@ -43,7 +43,8 @@
 	 function onButtonClick () {
 	     let v = ev.controls.target.clone ();
 	     v.sub(ev.camera.position);
-	     v.multiplyScalar (power);
+         v.normalize ();
+	     v.multiplyScalar (20.0 * power);
 	     ball.reset ();
 	     ball.setPower (v);
 	 }
@@ -62,7 +63,7 @@
 	 document.body.appendChild( stats.dom );
 	 
 	 window.ev = new Environment(THREE, CANNON);
-	 const stage = new Stage(ev);
+	 window.stage = new Stage(ev);
 	 window.ball = new Ball(ev);
 	 ball.position = new THREE.Vector3(0.0, 1.5, Environment._distance);
 	 
@@ -88,10 +89,10 @@
 		     ev.camera.updateProjectionMatrix();
 		 }
 
-                 ev.world.step(1.0 / 60.0);
-		 stage.step();
+             ev.world.step(1.0 / 360.0, ev.clock.getDelta ());
+		     stage.step();
 
-		 ev.update ();
+		     ev.update ();
 
 		 stats.end();
 
