@@ -8,17 +8,20 @@
     </head>
     <body>
 	<canvas id="c" style="width:100%; height:100%;"></canvas>
-        <div id="interface">
+    <div id="interface">
 	    <div id="button" onmouseup="onButtonClick ()">
-		<span>Shoot!</span>
+		    <span>Shoot!</span>
+	    </div>
+	    <div id="reset" onmouseup="onButtonReset ()">
+		    <span>Reset</span>
 	    </div>
 	    <div id="power">
-		<canvas id="canvas_power" width="233px" height="34px"></canvas>
-	    </div>
-	    <div id="score">
-		1 / 10  Score: 0
-	    </div>
+		    <canvas id="canvas_power" width="233px" height="34px"></canvas>
         </div>
+	    <div id="score">
+		    1 / 10  Score: 0
+	    </div>
+    </div>
 	<script>
 	 const POWER_OFFSET = 21;
 	 const POWER_MIN = 0;
@@ -26,7 +29,7 @@
 
 	 let powerContext = document.getElementById ("canvas_power").getContext ('2d');
 	 let power = 0.0;
-	 let addPowerVal = 1.5;
+	 let addPowerVal = 3;
 	 function setPower () {
 	     powerContext.fillStyle = 'white';
 	     powerContext.fillRect (0, 0, POWER_MAX, 34);
@@ -36,7 +39,7 @@
 
 	     power = power + addPowerVal;
 	     if ((power >= POWER_MAX) || (power < POWER_MIN)) {
-		 addPowerVal = -addPowerVal;
+		     addPowerVal = -addPowerVal;
 	     }
 	 }
 
@@ -44,10 +47,14 @@
 	     let v = ev.controls.target.clone ();
 	     v.sub(ev.camera.position);
          v.normalize ();
-	     v.multiplyScalar (20.0 * power);
+	     v.multiplyScalar (5.0 * power);
 	     ball.reset ();
 	     ball.setPower (v);
 	 }
+
+     function onButtonReset () {
+         stage.reset ();
+     }
 	</script>
 
 	<script type="module">
@@ -76,12 +83,12 @@
 	 }
 
 	 window.onload = function () {
+         ev.clock.start ();
+         
 	     function render(time) {
 		 stats.begin();
 
 		 setPower ();
-		 
-		 time *= 0.001;  // convert time to seconds
 		 
 		 if (resizeRendererToDisplaySize(ev.renderer)) {
 		     const canvas = ev.renderer.domElement;
@@ -89,9 +96,8 @@
 		     ev.camera.updateProjectionMatrix();
 		 }
 
-             ev.world.step(1.0 / 360.0, ev.clock.getDelta ());
+             ev.world.step(ev.clock.getDelta());
 		     stage.step();
-
 		     ev.update ();
 
 		 stats.end();

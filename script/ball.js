@@ -2,7 +2,7 @@ import {Environment} from './environment.js';
 
 export class Ball {
   static _radius = 0.072;
-  static _weight = 0.148 * 2.0;
+  static _weight = 0.148 * 4.0;
   
   constructor (ev) {
     this._environment = ev;

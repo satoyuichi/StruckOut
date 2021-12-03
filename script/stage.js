@@ -8,8 +8,6 @@ class Plate {
     this._mesh = new ev.three.Mesh (this._geometry, this._material);
     ev.scene.add (this._mesh);
 
-    this._position0 = new ev.three.Vector3( 0.0, 0.0, 0.0);
-
     const halfExtents = new ev.cannon.Vec3 (Plate._length * 0.5, Plate._length * 0.5, Plate._thin * 0.5);
     this._body = new ev.cannon.Body ({
       mass: 0.2,
@@ -29,11 +27,13 @@ class Plate {
   }
 
   set position (v) {
+    this._body.sleepState = ev.cannon.Body.SLEEPING
     this._body.position.set(v.x, v.y, v.z);
     this._mesh.position.copy(this._body.position)
   }
 
   reset () {
+    this._body.quaternion.set (0.0, 0.0, 0.0, 1.0);
     this.position = this._position0;
   }
 }
@@ -128,6 +128,7 @@ export class Stage {
       let plate = new Plate (this._environment, material);
       let p = platePositions[i];
       let v = new this._environment.three.Vector3(p.x, p.y + 1.5, p.z);
+      plate.position0 = v;
       plate.position = v;
       this.addChild(plate);
     }
@@ -172,6 +173,8 @@ export class Stage {
   }
 
   reset () {
+    this._environment.world.clearForces ();
+    
     for (var p of this._children) {
       p.reset ();
     }

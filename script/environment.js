@@ -39,22 +39,19 @@ export class Environment {
     this._controls.maxPolarAngle = this._three.MathUtils.degToRad( 120 );
     this._controls.target = new this._three.Vector3 (0.0, 1.5, Environment._distance);
 
-    window.addEventListener( 'resize', this.onWindowResize );
+    window.addEventListener( 'resize', () => {
+      this._camera.aspect = window.innerWidth / window.innerHeight;
+      this._camera.updateProjectionMatrix();
+
+      this._renderer.setSize( window.innerWidth, window.innerHeight );
+    });
   }
 
   initCannon () {
     this._world = new this._cannon.World ({
       gravity: new this._cannon.Vec3(0, -9.82, 0), // m/s²
     });
-  }
-
-  onWindowResize () {
-    this._camera.aspect = window.innerWidth / window.innerHeight;
-    this._camera.updateProjectionMatrix();
-
-    this._renderer.setSize( window.innerWidth, window.innerHeight );
-
-    this._controls.handleResize();
+    this._world.solver.iterations = 32;
   }
 
   update () {

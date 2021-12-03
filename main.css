@@ -25,11 +25,32 @@
     font-weight: bold;
 }
 
+#reset {
+    position: absolute;
+    left: 610px;
+    top: 0px;
+    width: 55px;
+    height: 55px;
+    float: left;
+    border-radius: 50% 50%;
+    text-align: center;
+    background: radial-gradient(#ff9610, #1c3af3d9, transparent);
+}
+
+#reset span {
+    text-shadow: 4px 4px 3px #777;
+    font-size: medium;
+    line-height: 55px;
+    font-weight: bold;
+}
+
 #power {
     position: absolute;
-    top: 0px;
+    top: 3px;
     left: 178px;
     width: 233px;
     height: 34px;
     float: left;
+    border: solid 3px black;
+    border-radius: 8px;
 }
