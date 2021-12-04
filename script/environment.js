@@ -50,9 +50,9 @@ export class Environment {
 
   initCannon () {
     this._world = new this._cannon.World ({
-      gravity: new this._cannon.Vec3(0, -9.82, 0), // m/s²
+      gravity: new this._cannon.Vec3(0, -9.82 * 0.5, 0), // m/s²
     });
-//    this._world.solver.iterations = 64;
+    this._world.solver.iterations = 20;
   }
 
   update () {
