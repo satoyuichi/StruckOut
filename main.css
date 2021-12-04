@@ -1,12 +1,12 @@
 body {
     user-select: none;
     margin: 0;
-    height: 90%;
+    height: 80%;
 }
 
 #c {
-    width: 90%;
-    height: 90%;
+    width: 80%;
+    height: 80%;
     display: block;
 }
 
