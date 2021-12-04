@@ -7,22 +7,32 @@
 	<title>Struc Out</title>
     </head>
     <body>
+        <div id="app">
 	<canvas id="c" style="width:100%; height:100%;"></canvas>
     <div id="interface">
 	    <div id="button" onmouseup="onButtonClick ()">
 		    <span>Shoot!</span>
 	    </div>
-	    <div id="reset" onmouseup="onButtonReset ()">
-		    <span>Reset</span>
-	    </div>
 	    <div id="power">
 		    <canvas id="canvas_power" width="233px" height="34px"></canvas>
         </div>
-	    <div id="score">
-		    1 / 10  Score: 0
+	    <div id="reset" onmouseup="onButtonReset ()">
+		    <span>Reset</span>
+	    </div>
+	    <div>
+		    <span id="score">投球数： {{score}} 球</span>
 	    </div>
     </div>
+        </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
 	<script>
+     let vue = new Vue({
+         el: "#app",
+         data: {
+             score: 0
+         }
+     });
+         
 	 const POWER_OFFSET = 21;
 	 const POWER_MIN = 0;
 	 const POWER_MAX = 233;
@@ -47,13 +57,16 @@
 	     let v = ev.controls.target.clone ();
 	     v.sub(ev.camera.position);
          v.normalize ();
-	     v.multiplyScalar (5.0 * power);
+	     v.multiplyScalar (10.0 * power);
 	     ball.reset ();
 	     ball.setPower (v);
+
+         vue.score++;
 	 }
 
      function onButtonReset () {
          stage.reset ();
+         Vue.score = 0;
      }
 	</script>
 
@@ -67,7 +80,7 @@
 
 	 const stats = new Stats();
 	 stats.showPanel(0);
-	 document.body.appendChild( stats.dom );
+//	 document.body.appendChild( stats.dom );
 	 
 	 window.ev = new Environment(THREE, CANNON);
 	 window.stage = new Stage(ev);
@@ -82,6 +95,7 @@
 	     __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('observe', { detail: ev.renderer }));
 	 }
 
+     let lastCallTime = 0;
 	 window.onload = function () {
          ev.clock.start ();
          
@@ -96,13 +110,17 @@
 		     ev.camera.updateProjectionMatrix();
 		 }
 
-             ev.world.step(ev.clock.getDelta());
+             let now = ev.clock.elapsedTime;
+             let timeSinceLastCall = now - lastCallTime;
+
+             ev.world.step(ev.clock.getDelta() * 0.5,  timeSinceLastCall, 64);
 		     stage.step();
 		     ev.update ();
 
 		 stats.end();
 
-		 requestAnimationFrame(render);
+		     requestAnimationFrame(render);
+             lastCallTime = now;
 	     }
 
 	     function resizeRendererToDisplaySize(renderer) {

@@ -13,6 +13,7 @@ export class Environment {
 
   init () {
     this._clock = new this._three.Clock();
+    this._clock.start ();
     
     const canvas = document.querySelector('#c');
     this._renderer = new this._three.WebGLRenderer({canvas});
@@ -51,7 +52,7 @@ export class Environment {
     this._world = new this._cannon.World ({
       gravity: new this._cannon.Vec3(0, -9.82, 0), // m/s²
     });
-    this._world.solver.iterations = 32;
+//    this._world.solver.iterations = 64;
   }
 
   update () {

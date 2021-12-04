@@ -7,9 +7,6 @@
 }
 
 #button {
-    position: absolute;
-    left: 13px;
-    top: 0px;
     width: 55px;
     height: 55px;
     float: left;
@@ -26,9 +23,6 @@
 }
 
 #reset {
-    position: absolute;
-    left: 610px;
-    top: 0px;
     width: 55px;
     height: 55px;
     float: left;
@@ -45,12 +39,17 @@
 }
 
 #power {
-    position: absolute;
-    top: 3px;
-    left: 178px;
+    position: relative;
+    top: 5px;
     width: 233px;
     height: 34px;
     float: left;
     border: solid 3px black;
     border-radius: 8px;
+}
+
+#score {
+    position: relative;
+    top: 7px;
+    font-size: x-large;
 }
