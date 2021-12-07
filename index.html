@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+    <head>
+	<meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" href="./main.css">
+	<title>Struc Out</title>
+    </head>
+    <body>
+        <div id="app">
+	<canvas id="c"></canvas>
+    <div id="interface">
+	    <div id="button" onmouseup="onButtonClick ()">
+		    <span>Shoot!</span>
+	    </div>
+	    <div id="power">
+		    <canvas id="canvas_power" width="233px" height="34px"></canvas>
+        </div>
+	    <div id="reset" onmouseup="onButtonReset ()">
+		    <span>Reset</span>
+	    </div>
+	    <div>
+		    <span id="score">投球数： {{score}} 球</span>
+	    </div>
+    </div>
+        </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+	<script>
+     let vue = new Vue({
+         el: "#app",
+         data: {
+             score: 0
+         }
+     });
+         
+	 const POWER_OFFSET = 21;
+	 const POWER_MIN = 0;
+	 const POWER_MAX = 233;
+
+	 let powerContext = document.getElementById ("canvas_power").getContext ('2d');
+	 let power = 0.0;
+	 let addPowerVal = 3;
+	 function setPower () {
+	     powerContext.fillStyle = 'white';
+	     powerContext.fillRect (0, 0, POWER_MAX, 34);
+
+	     powerContext.fillStyle = 'orange';
+	     powerContext.fillRect (0, 0, power, 34);
+
+	     power = power + addPowerVal;
+	     if ((power >= POWER_MAX) || (power < POWER_MIN)) {
+		     addPowerVal = -addPowerVal;
+	     }
+	 }
+
+	 function onButtonClick () {
+	     let v = ev.controls.target.clone ();
+	     v.sub(ev.camera.position);
+         v.normalize ();
+	     v.multiplyScalar (4.5 * power);
+	     ball.reset ();
+	     ball.setPower (v);
+
+         vue.score++;
+	 }
+
+     function onButtonReset () {
+         stage.reset ();
+         vue.score = 0;
+     }
+	</script>
+
+	<script type="module">
+	 import {Environment} from './script/environment.js';
+	 import {Stage} from './script/stage.js';
+	 import {Ball} from './script/ball.js';
+	 import * as THREE from 'https://cdn.skypack.dev/three';
+	 import * as CANNON from 'https://cdn.skypack.dev/cannon-es';
+	 import Stats from 'https://cdn.skypack.dev/stats.js';
+
+	 const stats = new Stats();
+	 stats.showPanel(0);
+//	 document.body.appendChild( stats.dom );
+	 
+	 window.ev = new Environment(THREE, CANNON);
+	 window.stage = new Stage(ev);
+	 window.ball = new Ball(ev);
+	 ball.position = new THREE.Vector3(0.0, 1.5, Environment._distance);
+	 
+	 stage.setup ();
+	 stage.addChild (ball);
+
+	 if (typeof __THREE_DEVTOOLS__ !== 'undefined') {
+	     __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('observe', { detail: ev.scene }));
+	     __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('observe', { detail: ev.renderer }));
+	 }
+
+     let lastCallTime = 0;
+	 window.onload = function () {
+         ev.clock.start ();
+         
+	     function render(time) {
+		 stats.begin();
+
+		 setPower ();
+		 
+		 if (resizeRendererToDisplaySize(ev.renderer)) {
+		     const canvas = ev.renderer.domElement;
+		     ev.camera.aspect = canvas.clientWidth / canvas.clientHeight;
+		     ev.camera.updateProjectionMatrix();
+		 }
+
+             let now = ev.clock.elapsedTime;
+             let timeSinceLastCall = now - lastCallTime;
+
+             ev.world.step(ev.clock.getDelta() * 0.5,  timeSinceLastCall, 64);
+		     stage.step();
+		     ev.update ();
+
+		 stats.end();
+
+		     requestAnimationFrame(render);
+             lastCallTime = now;
+	     }
+
+	     function resizeRendererToDisplaySize(renderer) {
+		 const canvas = renderer.domElement;
+		 const pixelRatio = window.devicePixelRatio;
+		 const width  = canvas.clientWidth  * pixelRatio | 0;
+		 const height = canvas.clientHeight * pixelRatio | 0;
+		 const needResize = canvas.width !== width || canvas.height !== height;
+		 if (needResize) {
+		     renderer.setSize(width, height, false);
+		 }
+		 return needResize;
+	     }
+
+	     requestAnimationFrame(render);
+	 }
+	</script>
+    </body>
+</html>
